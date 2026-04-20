@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中台管理 - 测试页面</title>
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div id="app">
+        <el-container>
+            <!-- 头部导航 -->
+            <el-header class="header">
+                <div class="header-content">
+                    <h1>中台管理后台</h1>
+                    <el-menu mode="horizontal" :default-active="activeMenu" @select="handleMenuSelect">
+                        <el-menu-item index="/">
+                            <span>任务列表</span>
+                        </el-menu-item>
+                        <el-menu-item index="/images">
+                            <span>图像列表</span>
+                        </el-menu-item>
+                        <el-menu-item index="/workflows">
+                            <span>工作流管理</span>
+                        </el-menu-item>
+                        <el-menu-item index="/test">
+                            <span>测试页面</span>
+                        </el-menu-item>
+                    </el-menu>
+                </div>
+            </el-header>
+
+            <!-- 主内容 -->
+            <el-main style="padding: 20px;">
+                <el-card shadow="never">
+                    <template #header>
+                        <h2 style="margin: 0;">测试请求</h2>
+                    </template>
+
+                    <el-form :model="testForm" label-width="120px" ref="testFormRef">
+                        <el-form-item label="选择工作流" prop="workflow_id" :rules="[{ required: true, message: '请选择工作流', trigger: 'change' }]">
+                            <el-select
+                                v-model="testForm.workflow_id"
+                                placeholder="请选择工作流..."
+                                filterable
+                                style="width: 100%"
+                                @change="handleWorkflowChange"
+                            >
+                                <el-option
+                                    v-for="workflow in workflows"
+                                    :key="workflow.id"
+                                    :label="workflow.name + (workflow.is_default ? ' (默认)' : '')"
+                                    :value="workflow.id"
+                                />
+                            </el-select>
+                            <el-button size="small" @click="loadWorkflowList" style="margin-left: 10px;">刷新列表</el-button>
+                        </el-form-item>
+
+                        <el-form-item label="正向提示词">
+                            <el-input
+                                v-model="testForm.positive_prompt"
+                                type="textarea"
+                                :rows="5"
+                                placeholder="输入正向提示词（可选，不输入则使用工作流原有提示词）"
+                            />
+                        </el-form-item>
+
+                        <el-form-item label="负向提示词">
+                            <el-input
+                                v-model="testForm.negative_prompt"
+                                type="textarea"
+                                :rows="3"
+                                placeholder="输入负向提示词（可选，不输入则使用工作流原有提示词）"
+                            />
+                        </el-form-item>
+
+                        <el-form-item label="工作流JSON预览">
+                            <div style="margin-bottom: 10px;">
+                                <el-button size="small" @click="handleLoadFromFile">从文件加载</el-button>
+                                <el-button size="small" @click="handleFormatJSON">格式化JSON</el-button>
+                            </div>
+                            <el-input
+                                v-model="workflowPreview"
+                                type="textarea"
+                                :rows="15"
+                                placeholder="工作流JSON配置（将从选择的工作流自动加载）"
+                                readonly
+                                style="font-family: monospace;"
+                            />
+                        </el-form-item>
+
+                        <el-form-item>
+                            <el-button type="primary" @click="handleSubmit" :loading="submitting">提交测试请求</el-button>
+                            <el-button @click="handleClear">清空</el-button>
+                        </el-form-item>
+                    </el-form>
+
+                    <!-- 测试结果 -->
+                    <el-card v-if="testResult" shadow="never" style="margin-top: 20px;">
+                        <template #header>
+                            <h3 style="margin: 0;">测试结果</h3>
+                        </template>
+                        <div v-if="testResult.status === 'pending'">
+                            <el-alert type="info" :closable="false">
+                                <p>任务已提交，请求ID: {{ testResult.request_id }}</p>
+                                <p>状态: 待处理</p>
+                            </el-alert>
+                        </div>
+                        <div v-else-if="testResult.status === 'running'">
+                            <el-alert type="warning" :closable="false">
+                                <p>请求ID: {{ testResult.request_id }}</p>
+                                <p>状态: 运行中</p>
+                                <el-progress :percentage="testResult.progress || 0" />
+                            </el-alert>
+                        </div>
+                        <div v-else-if="testResult.status === 'completed'">
+                            <el-alert type="success" :closable="false">
+                                <p>请求ID: {{ testResult.request_id }}</p>
+                                <p>状态: 已完成</p>
+                                <p>进度: 100%</p>
+                            </el-alert>
+                            <div v-if="testResult.images && testResult.images.length > 0" style="margin-top: 20px;">
+                                <h4>生成的图像:</h4>
+                                <el-row :gutter="20">
+                                    <el-col v-for="(image, index) in testResult.images" :key="index" :span="6">
+                                        <el-card shadow="hover" style="cursor: pointer;" @click="handlePreviewImage(image)">
+                                            <img :src="image.url" style="width: 100%; height: 200px; object-fit: cover;" />
+                                            <div style="margin-top: 10px; text-align: center;">
+                                                <el-button type="primary" link size="small" @click.stop="handleDownloadImage(image)">下载</el-button>
+                                            </div>
+                                        </el-card>
+                                    </el-col>
+                                </el-row>
+                            </div>
+                        </div>
+                        <div v-else-if="testResult.status === 'failed'">
+                            <el-alert type="error" :closable="false">
+                                <p>请求ID: {{ testResult.request_id }}</p>
+                                <p>状态: 失败</p>
+                                <p v-if="testResult.error">错误信息: {{ testResult.error }}</p>
+                            </el-alert>
+                        </div>
+                        <div style="margin-top: 20px;">
+                            <el-button type="primary" @click="handleRefreshStatus" :loading="refreshing">刷新状态</el-button>
+                            <el-button @click="handleViewTask">查看任务详情</el-button>
+                        </div>
+                    </el-card>
+                </el-card>
+            </el-main>
+        </el-container>
+
+        <!-- 图像预览对话框 -->
+        <el-dialog v-model="imagePreviewVisible" title="图像预览" width="60%">
+            <div v-if="previewImage" style="text-align: center;">
+                <img :src="previewImage.url" style="max-width: 100%; max-height: 600px;" />
+                <div style="margin-top: 20px;">
+                    <el-button type="primary" @click="handleDownloadImage(previewImage)">下载</el-button>
+                </div>
+            </div>
+        </el-dialog>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+    <script src="/static/js/common.js"></script>
+    <script src="/static/js/test-vue.js"></script>
+</body>
+</html>

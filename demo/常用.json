@@ -1,0 +1,295 @@
+{
+  "3": {
+    "inputs": {
+      "seed": 198589017841212,
+      "steps": 25,
+      "cfg": 6.5,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1,
+      "model": [
+        "32",
+        0
+      ],
+      "positive": [
+        "26",
+        1
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "latent_image": [
+        "5",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "4": {
+    "inputs": {
+      "ckpt_name": "Illustrious-动漫\\oneObsession_v19.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Checkpoint加载器（简易）"
+    }
+  },
+  "5": {
+    "inputs": {
+      "width": 800,
+      "height": 1600,
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {
+      "title": "空Latent图像"
+    }
+  },
+  "6": {
+    "inputs": {
+      "text": "highres,masterpiece,colorful,1girl,solo,full body,20 years old,mature,roxy migurdia,long hair,medium breasts,braids,pout,blue eyes,blue hair,bangs,detailed face,slim body,slim legs,fit,small waist,wearing white night dress,white night gown,white panties,slender_waist,kneeling on bed,skirtlift,lifting dress,looking at viewer,\ncameltoe,",
+      "speak_and_recognation": {
+        "__value__": [
+          false,
+          true
+        ]
+      }
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "7": {
+    "inputs": {
+      "text": "bad-picture-chill-75v,bad_prompt_version2-neg,BadDream,badhandv4 By bad artist -neg,easynegative,EasyNegativeV2,FastNegativeV2,ng_deepnegative_v1_75t,pureerosface_v1,UnrealisticDream,verybadimagenegative_v1.3,negative_hand-neg,worst quality,bad quality,jpeg artifacts,source_cartoon,(censor),monochrome,blurry,lowres,watermark,malformed hands,malformed legs,",
+      "speak_and_recognation": {
+        "__value__": [
+          false,
+          true
+        ]
+      },
+      "clip": [
+        "32",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP文本编码"
+    }
+  },
+  "8": {
+    "inputs": {
+      "samples": [
+        "3",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "11": {
+    "inputs": {
+      "upscale_method": "nearest-exact",
+      "scale_by": 1.5,
+      "samples": [
+        "3",
+        0
+      ]
+    },
+    "class_type": "LatentUpscaleBy",
+    "_meta": {
+      "title": "缩放Latent（比例）"
+    }
+  },
+  "14": {
+    "inputs": {
+      "seed": 0,
+      "steps": 20,
+      "cfg": 6,
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 0.5000000000000001,
+      "model": [
+        "32",
+        0
+      ],
+      "positive": [
+        "26",
+        1
+      ],
+      "negative": [
+        "7",
+        0
+      ],
+      "latent_image": [
+        "11",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "K采样器"
+    }
+  },
+  "16": {
+    "inputs": {
+      "samples": [
+        "14",
+        0
+      ],
+      "vae": [
+        "4",
+        2
+      ]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {
+      "title": "VAE解码"
+    }
+  },
+  "26": {
+    "inputs": {
+      "positive": "masterpiece, best quality, good quality, very aesthetic, absurdres, newest, 8K, simple background, front view,\nsolo,\nrem,\nlooking at viewer,\n1girl, loli, adult, petite, short hair, narrow_waist, maid,\nblue eyes, blue hair, big breasts, hair over one eye, x hair hornament, hair ribbon, small breasts, roswaal mansion maid uniform, solo, pose, standing, from front, looking at viewer, white background, simple background, summer_uniform,",
+      "auto_random": false,
+      "temp_str": "[{\"id\":\"token_2_1765636556512\",\"text\":\"masterpiece\",\"translate\":\"masterpiece\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_4_1765637751495\",\"text\":\"best quality\",\"translate\":\"best 质量\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_6_1766325669998\",\"text\":\"good quality\",\"translate\":\"good 质量\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_7_1766325669998\",\"text\":\"very aesthetic\",\"translate\":\"very aesthetic\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_2_1766068515321\",\"text\":\"absurdres\",\"translate\":\"超高分辨率\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(0, 255, 255, .4)\",\"isLoraTag\":false},{\"id\":\"token_8_1766325669998\",\"text\":\"newest\",\"translate\":\"newest\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_9_1766325669998\",\"text\":\"8K\",\"translate\":\"8K\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_29_1766325669999\",\"text\":\"simple background\",\"translate\":\"简单的背景\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(0, 255, 255, .4)\",\"isLoraTag\":false},{\"id\":\"token_7_1766326145832\",\"text\":\"front view\",\"translate\":\"正面视角\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(99, 201, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_11_1766822132227\",\"text\":\"\\n\",\"translate\":\"\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null},{\"id\":\"token_31_1766156901546\",\"text\":\"solo\",\"translate\":\"单人\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_12_1766822132227\",\"text\":\"\\n\",\"translate\":\"\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null},{\"id\":\"token_15_1766589074072\",\"text\":\"rem\",\"translate\":\"rem\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_13_1766822132227\",\"text\":\"\\n\",\"translate\":\"\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null},{\"id\":\"token_23_1766503846650\",\"text\":\"looking at viewer\",\"translate\":\"看着观众\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_14_1766822132227\",\"text\":\"\\n\",\"translate\":\"\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null},{\"id\":\"token_4_1765636556512\",\"text\":\"1girl\",\"translate\":\"1女孩\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_16_1766590385271\",\"text\":\"loli\",\"translate\":\"萝莉\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_13_1766588834040\",\"text\":\"adult\",\"translate\":\"大人\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_13_1766503153847\",\"text\":\"petite\",\"translate\":\"娇小\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_13_1766589130589\",\"text\":\"short hair\",\"translate\":\"短发\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_18_1766503159179\",\"text\":\"narrow_waist\",\"translate\":\"细腰\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_16_1766590523779\",\"text\":\"maid\",\"translate\":\"女仆\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_15_1766822132227\",\"text\":\"\\n\",\"translate\":\"\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null},{\"id\":\"token_15_1766589918431\",\"text\":\"blue eyes\",\"translate\":\"蓝色眼睛\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_16_1766589918431\",\"text\":\"blue hair\",\"translate\":\"蓝色头发\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_16_1766763012617\",\"text\":\"big breasts\",\"translate\":\"大胸部(D)\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_18_1766589918431\",\"text\":\"hair over one eye\",\"translate\":\"hair over one eye\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_19_1766589918431\",\"text\":\"x hair hornament\",\"translate\":\"X hair hornament\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_20_1766589918431\",\"text\":\"hair ribbon\",\"translate\":\"hair 丝带\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(230, 84, 128, .4)\",\"isLoraTag\":false},{\"id\":\"token_21_1766589918431\",\"text\":\"small breasts\",\"translate\":\"small 胸部\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_22_1766589918431\",\"text\":\"roswaal mansion maid uniform\",\"translate\":\"roswaal mansion 女仆 uniform\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_23_1766589918431\",\"text\":\"solo\",\"translate\":\"单人\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_24_1766589918431\",\"text\":\"pose\",\"translate\":\"姿势\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(241, 229, 140, .4)\",\"isLoraTag\":false},{\"id\":\"token_25_1766589918431\",\"text\":\"standing\",\"translate\":\"站立\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(241, 229, 140, .4)\",\"isLoraTag\":false},{\"id\":\"token_26_1766589918431\",\"text\":\"from front\",\"translate\":\"from front\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_27_1766589918431\",\"text\":\"looking at viewer\",\"translate\":\"看着观众\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(255, 123, 2, .4)\",\"isLoraTag\":false},{\"id\":\"token_28_1766589918431\",\"text\":\"white background\",\"translate\":\"white background\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":null,\"isLoraTag\":false},{\"id\":\"token_29_1766589918431\",\"text\":\"simple background\",\"translate\":\"简单的背景\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(0, 255, 255, .4)\",\"isLoraTag\":false},{\"id\":\"token_16_1766822132227\",\"text\":\"summer_uniform\",\"translate\":\"夏季制服\",\"isPunctuation\":false,\"isEditing\":false,\"isHidden\":false,\"color\":\"rgba(230, 84, 128, .4)\",\"isLoraTag\":false}]",
+      "random_template": "",
+      "打开提示词编辑器": "",
+      "speak_and_recognation": {
+        "__value__": [
+          false,
+          true
+        ]
+      },
+      "opt_clip": [
+        "32",
+        1
+      ]
+    },
+    "class_type": "WeiLinPromptUIWithoutLora",
+    "_meta": {
+      "title": "WeiLin 提示词编辑器"
+    }
+  },
+  "27": {
+    "inputs": {
+      "rgthree_comparer": {
+        "images": [
+          {
+            "name": "A",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_rbpki_00013_.png&type=temp&subfolder=&rand=0.15795668609467806"
+          },
+          {
+            "name": "B",
+            "selected": true,
+            "url": "/api/view?filename=rgthree.compare._temp_rbpki_00014_.png&type=temp&subfolder=&rand=0.32281674669021854"
+          }
+        ]
+      },
+      "image_a": [
+        "16",
+        0
+      ],
+      "image_b": [
+        "8",
+        0
+      ]
+    },
+    "class_type": "Image Comparer (rgthree)",
+    "_meta": {
+      "title": "Image Comparer (rgthree)"
+    }
+  },
+  "28": {
+    "inputs": {
+      "filename_prefix": "ComfyUI",
+      "images": [
+        "16",
+        0
+      ]
+    },
+    "class_type": "SaveImage",
+    "_meta": {
+      "title": "保存图像"
+    }
+  },
+  "29": {
+    "inputs": {
+      "prompt_1": "masterpiece, best quality, very aesthetic, absurdres, newest, very awa, detailed eyes, depth of field, best lighting, detailed illustration, detailed background, high contrast, soft shading, clean line art, watercolor \\(medium\\), sketch,\nwhite_background, cowboy_shot,\nSylphietteSchool,\n1girl, solo, ahoge, medium breasts, legs, narrow_waist, smile, looking at viewer, curvy,\ngrey hair, short hair, forehead, ahoge, orange eyes, pointy ears, earrings, SylphyPreg, turtleneck, black shirt, white dress, long sleeves, wide sleeves, underbust, brown belt, white thighhighs, shirt_pull,",
+      "prompt_2": "masterpiece, best quality, very aesthetic, absurdres, newest, very awa, detailed eyes, depth of field, best lighting, detailed illustration, detailed background, high contrast, soft shading, clean line art, watercolor \\(medium\\), sketch,\nwhite_background, cowboy_shot,\nRoxyDress,\n1girl, child, solo, ahoge, small_breasts, legs, narrow_waist, smile, looking at viewer, curvy,\nlong hair, crossed bangs, twin braids, blue hair, long hair, blue eyes,\nskirt_set, casual T-shirts, loating_jacket,",
+      "prompt_3": "masterpiece, best quality, very aesthetic, absurdres, newest, very awa, detailed eyes, depth of field, best lighting, detailed illustration, detailed background, high contrast, soft shading, clean line art, watercolor \\(medium\\), sketch,\nwhite_background, cowboy_shot,\neris greyrat, 1girl, solo, ahoge, bangs, red eyes, long hair, red hair, medium breasts, legs, narrow_waist, smile, closed mouth, hair between eyes, adjusting_hair, looking at viewer, suspenders, casual T-shirts, tight_pants,",
+      "prompt_4": "masterpiece, best quality, very aesthetic, absurdres, newest, very awa, detailed eyes, depth of field, best lighting, detailed illustration, detailed background, high contrast, soft shading, clean line art, watercolor \\(medium\\), sketch,\nwhite_background, panorama, full_shot,\nreze, reze (chainsaw man), r3z3,\nperfect eyes,\n1girl, looking at viewer, purple hair, cowboy shot, smile, hair between eyes, sidelocks, big breasts, medium hair, black choker, black neck ribbon, white collared shirt, sleeveless shirt, shirt tucked in, black high-waist shorts, black thighhighs, head tilt, white_background, narrow_waist, arms_behind_back,",
+      "prompt_5": "",
+      "speak_and_recognation": {
+        "__value__": [
+          false,
+          true
+        ]
+      }
+    },
+    "class_type": "easy promptList",
+    "_meta": {
+      "title": "提示词列表"
+    }
+  },
+  "32": {
+    "inputs": {
+      "text": "<lora:CunnystyleV9.2-000022:0.85> <lora:Shinyfy_illustrious:0.90> <lora:rem:1.00>",
+      "loras": {
+        "__value__": [
+          {
+            "name": "CunnystyleV9.2-000022",
+            "strength": "0.85",
+            "active": true,
+            "expanded": false,
+            "clipStrength": "0.85"
+          },
+          {
+            "name": "Shinyfy_illustrious",
+            "strength": "0.90",
+            "active": true,
+            "expanded": false,
+            "clipStrength": "0.90"
+          },
+          {
+            "name": "rem",
+            "strength": 1,
+            "active": true,
+            "expanded": false,
+            "clipStrength": 1
+          }
+        ]
+      },
+      "speak_and_recognation": {
+        "__value__": [
+          false,
+          true
+        ]
+      },
+      "model": [
+        "4",
+        0
+      ],
+      "clip": [
+        "4",
+        1
+      ]
+    },
+    "class_type": "Lora Loader (LoraManager)",
+    "_meta": {
+      "title": "Lora Loader (LoraManager)"
+    }
+  }
+}

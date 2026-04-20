@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中台管理 - 图像列表</title>
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .image-list-container {
+            padding: 20px;
+        }
+        .filter-toolbar {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 4px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .selection-bar {
+            margin-bottom: 20px;
+            padding: 12px 20px;
+            background: #ecf5ff;
+            border: 1px solid #b3d8ff;
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .image-grid-container {
+            min-height: 400px;
+        }
+        .image-card {
+            border: 1px solid #e4e7ed;
+            border-radius: 4px;
+            overflow: hidden;
+            background: #fff;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        .image-card:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        .image-card-header {
+            padding: 8px;
+            background: #f5f7fa;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .image-card-body {
+            position: relative;
+            aspect-ratio: 1;
+            overflow: hidden;
+            background: #f5f7fa;
+        }
+        .image-card-body img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.3s;
+        }
+        .image-card:hover .image-card-body img {
+            transform: scale(1.05);
+        }
+        .image-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.6), transparent);
+            opacity: 0;
+            transition: opacity 0.3s;
+            display: flex;
+            align-items: flex-end;
+            padding: 10px;
+        }
+        .image-card:hover .image-overlay {
+            opacity: 1;
+        }
+        .image-info-badge {
+            display: flex;
+            gap: 8px;
+            color: white;
+            font-size: 12px;
+        }
+        .image-info-badge span {
+            background: rgba(0,0,0,0.6);
+            padding: 2px 6px;
+            border-radius: 3px;
+        }
+        .image-card-footer {
+            padding: 12px;
+        }
+        .image-title {
+            font-weight: 600;
+            font-size: 14px;
+            color: #303133;
+            margin-bottom: 8px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+        .image-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            color: #909399;
+            margin-bottom: 8px;
+        }
+        .image-prompt {
+            font-size: 12px;
+            color: #909399;
+            line-height: 1.4;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+        .list-view .image-card {
+            display: flex;
+            flex-direction: row;
+            max-height: 200px;
+        }
+        .list-view .image-card-body {
+            width: 200px;
+            flex-shrink: 0;
+            aspect-ratio: unset;
+        }
+        .list-view .image-card-footer {
+            flex: 1;
+            padding: 15px;
+        }
+        .pagination-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #909399;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-container>
+            <!-- 头部导航 -->
+            <el-header class="header">
+                <div class="header-content">
+                    <h1>中台管理后台</h1>
+                    <el-menu mode="horizontal" :default-active="activeMenu" @select="handleMenuSelect">
+                        <el-menu-item index="/">
+                            <span>任务列表</span>
+                        </el-menu-item>
+                        <el-menu-item index="/images">
+                            <span>图像列表</span>
+                        </el-menu-item>
+                        <el-menu-item index="/workflows">
+                            <span>工作流管理</span>
+                        </el-menu-item>
+                        <el-menu-item index="/test">
+                            <span>测试页面</span>
+                        </el-menu-item>
+                    </el-menu>
+                </div>
+            </el-header>
+
+            <!-- 主内容 -->
+            <el-main class="image-list-container">
+                <!-- 筛选工具栏 -->
+                <div class="filter-toolbar">
+                    <el-form :inline="true" :model="filters" class="demo-form-inline">
+                        <el-form-item label="用户ID">
+                            <el-input v-model="filters.user_id" placeholder="用户ID" clearable style="width: 150px" />
+                        </el-form-item>
+                        <el-form-item label="任务ID">
+                            <el-input v-model="filters.task_id" placeholder="任务ID" clearable style="width: 200px" />
+                        </el-form-item>
+                        <el-form-item label="开始日期">
+                            <el-date-picker
+                                v-model="filters.date_from"
+                                type="date"
+                                placeholder="开始日期"
+                                format="YYYY-MM-DD"
+                                value-format="YYYY-MM-DD"
+                                style="width: 150px"
+                            />
+                        </el-form-item>
+                        <el-form-item label="结束日期">
+                            <el-date-picker
+                                v-model="filters.date_to"
+                                type="date"
+                                placeholder="结束日期"
+                                format="YYYY-MM-DD"
+                                value-format="YYYY-MM-DD"
+                                style="width: 150px"
+                            />
+                        </el-form-item>
+                        <el-form-item>
+                            <el-button type="primary" @click="handleSearch">搜索</el-button>
+                            <el-button @click="handleReset">重置</el-button>
+                        </el-form-item>
+                        <el-form-item style="margin-left: auto;">
+                            <el-radio-group v-model="viewMode" size="small">
+                                <el-radio-button label="grid">网格</el-radio-button>
+                                <el-radio-button label="list">列表</el-radio-button>
+                            </el-radio-group>
+                        </el-form-item>
+                    </el-form>
+                </div>
+
+                <!-- 选择栏 -->
+                <div class="selection-bar" v-if="selectedImages.length > 0">
+                    <div>
+                        <el-checkbox v-model="selectAll" @change="handleSelectAll">全选</el-checkbox>
+                        <span style="margin-left: 10px;">已选择 {{ selectedImages.length }} 张图像</span>
+                    </div>
+                    <div>
+                        <el-button type="primary" size="small" @click="handleBatchDownload">批量下载</el-button>
+                        <el-button type="danger" size="small" @click="handleBatchDelete">批量删除</el-button>
+                    </div>
+                </div>
+
+                <!-- 图像网格 -->
+                <div class="image-grid-container">
+                    <el-row :gutter="20" v-if="images.length > 0" :class="{'list-view': viewMode === 'list'}">
+                        <el-col
+                            v-for="(image, index) in images"
+                            :key="image.id"
+                            :span="viewMode === 'grid' ? 6 : 24"
+                            :xs="12"
+                            :sm="8"
+                            :md="6"
+                        >
+                            <div class="image-card" @click="handlePreview(image, index)">
+                                <div class="image-card-header">
+                                    <el-checkbox
+                                        :model-value="isSelected(image.id)"
+                                        @change="(val) => handleSelectImage(image.id, val)"
+                                        @click.stop
+                                    />
+                                    <div>
+                                        <el-button
+                                            text
+                                            size="small"
+                                            @click.stop="handlePreview(image, index)"
+                                        >预览</el-button>
+                                        <el-button
+                                            text
+                                            size="small"
+                                            @click.stop="handleDownload(image)"
+                                        >下载</el-button>
+                                    </div>
+                                </div>
+                                <div class="image-card-body">
+                                    <img :src="getImageUrl(image)" :alt="image.filename" @error="handleImageError" />
+                                    <div class="image-overlay">
+                                        <div class="image-info-badge">
+                                            <span>{{ formatFileSize(image.file_size) }}</span>
+                                            <span v-if="image.width && image.height">{{ image.width }} × {{ image.height }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="image-card-footer">
+                                    <div class="image-title" :title="image.filename">{{ image.filename }}</div>
+                                    <div class="image-meta">
+                                        <span>用户: {{ image.user_id }}</span>
+                                        <span>{{ formatDate(image.created_at) }}</span>
+                                    </div>
+                                    <div class="image-prompt" v-if="image.prompt_text" :title="image.prompt_text">
+                                        {{ truncateText(image.prompt_text, 30) }}
+                                    </div>
+                                </div>
+                            </div>
+                        </el-col>
+                    </el-row>
+                    <el-empty v-else description="暂无图像" />
+                </div>
+
+                <!-- 分页 -->
+                <div class="pagination-container">
+                    <el-pagination
+                        v-model:current-page="pagination.page"
+                        v-model:page-size="pagination.pageSize"
+                        :page-sizes="[12, 24, 48, 96]"
+                        :total="pagination.total"
+                        layout="total, sizes, prev, pager, next, jumper"
+                        @size-change="handleSizeChange"
+                        @current-change="handlePageChange"
+                    />
+                </div>
+            </el-main>
+        </el-container>
+
+        <!-- 图像预览对话框 -->
+        <el-dialog
+            v-model="previewVisible"
+            title="图像预览"
+            width="80%"
+            :close-on-click-modal="false"
+        >
+            <div v-if="previewImage" style="display: flex; gap: 20px;">
+                <div style="flex: 1; display: flex; align-items: center; justify-content: center; background: #f5f7fa; border-radius: 4px; min-height: 400px;">
+                    <img :src="getImageUrl(previewImage)" style="max-width: 100%; max-height: 600px; object-fit: contain;" />
+                </div>
+                <div style="width: 350px; overflow-y: auto;">
+                    <el-descriptions :column="1" border>
+                        <el-descriptions-item label="文件名">
+                            {{ previewImage.filename }}
+                        </el-descriptions-item>
+                        <el-descriptions-item label="文件大小">
+                            {{ formatFileSize(previewImage.file_size) }}
+                        </el-descriptions-item>
+                        <el-descriptions-item label="图像尺寸">
+                            <span v-if="previewImage.width && previewImage.height">
+                                {{ previewImage.width }} × {{ previewImage.height }}
+                            </span>
+                            <span v-else>未知</span>
+                        </el-descriptions-item>
+                        <el-descriptions-item label="创建时间">
+                            {{ formatDate(previewImage.created_at) }}
+                        </el-descriptions-item>
+                        <el-descriptions-item label="用户ID">
+                            {{ previewImage.user_id }}
+                        </el-descriptions-item>
+                        <el-descriptions-item label="任务ID">
+                            <el-link type="primary" @click="copyToClipboard(previewImage.request_id)">
+                                {{ previewImage.request_id }}
+                            </el-link>
+                        </el-descriptions-item>
+                        <el-descriptions-item label="状态">
+                            <el-tag :type="getStatusType(previewImage.status)">
+                                {{ getStatusText(previewImage.status) }}
+                            </el-tag>
+                        </el-descriptions-item>
+                        <el-descriptions-item label="提示词">
+                            <div style="max-height: 150px; overflow-y: auto; background: #f5f7fa; padding: 10px; border-radius: 4px;">
+                                {{ previewImage.prompt_text || '无' }}
+                            </div>
+                        </el-descriptions-item>
+                    </el-descriptions>
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <el-button type="primary" @click="handleDownload(previewImage)">下载图像</el-button>
+                        <el-button @click="handleViewTask(previewImage)">查看任务</el-button>
+                    </div>
+                </div>
+            </div>
+        </el-dialog>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+    <script src="/static/js/image-vue.js"></script>
+</body>
+</html>

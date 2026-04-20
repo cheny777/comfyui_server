@@ -1,0 +1,10 @@
+# 构建产物
+dist/
+*.exe
+*.tar.gz
+*.zip
+
+# 临时文件
+*.tmp
+*.log
+

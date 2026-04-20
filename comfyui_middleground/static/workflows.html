@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>中台管理 - 工作流管理</title>
+    <!-- Element Plus CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+    <!-- Element Plus Icons -->
+    <link rel="stylesheet" href="https://unpkg.com/@element-plus/icons-vue/dist/index.css">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <style>
+        .workflow-list-container {
+            padding: 20px;
+        }
+        .workflow-header {
+            background: #fff;
+            padding: 20px;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .header-title {
+            margin-bottom: 15px;
+        }
+        .filter-toolbar {
+            margin-top: 15px;
+        }
+        .filter-form {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        .workflow-card {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+        }
+        .workflow-card:hover {
+            box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+            transform: translateY(-2px);
+        }
+        .workflow-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        .workflow-title-section {
+            flex: 1;
+        }
+        .workflow-title {
+            margin: 0 0 8px 0;
+            font-size: 18px;
+            font-weight: 600;
+            color: white;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        .workflow-meta {
+            display: flex;
+            gap: 12px;
+            font-size: 12px;
+            opacity: 0.9;
+        }
+        .workflow-actions {
+            display: flex;
+            gap: 4px;
+            flex-wrap: wrap;
+        }
+        .workflow-actions .el-button {
+            color: white;
+        }
+        .workflow-card-body {
+            padding: 16px;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        .workflow-description {
+            font-size: 14px;
+            color: #606266;
+            line-height: 1.6;
+            margin-bottom: 12px;
+            min-height: 44px;
+        }
+        .workflow-stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 12px;
+            padding: 12px;
+            background: #f5f7fa;
+            border-radius: 4px;
+        }
+        .stat-item {
+            display: flex;
+            align-items: center;
+            font-size: 13px;
+        }
+        .stat-label {
+            color: #909399;
+            margin-right: 6px;
+        }
+        .stat-value {
+            color: #303133;
+            font-weight: 600;
+        }
+        .workflow-tags {
+            margin-bottom: 12px;
+            min-height: 28px;
+        }
+        .workflow-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid #e4e7ed;
+            font-size: 12px;
+            color: #909399;
+        }
+        .pagination-container {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #909399;
+        }
+    </style>
+</head>
+<body>
+    <div id="app">
+        <el-container>
+            <!-- 头部导航 -->
+            <el-header class="header">
+                <div class="header-content">
+                    <h1>中台管理后台</h1>
+                    <el-menu mode="horizontal" :default-active="activeMenu" @select="handleMenuSelect">
+                        <el-menu-item index="/">
+                            <span>任务列表</span>
+                        </el-menu-item>
+                        <el-menu-item index="/images">
+                            <span>图像列表</span>
+                        </el-menu-item>
+                        <el-menu-item index="/workflows">
+                            <span>工作流管理</span>
+                        </el-menu-item>
+                        <el-menu-item index="/test">
+                            <span>测试页面</span>
+                        </el-menu-item>
+                    </el-menu>
+                </div>
+            </el-header>
+
+            <!-- 主内容 -->
+            <el-main class="main-content">
+                <div class="workflow-list-container">
+                    <!-- 页面头部和筛选工具栏 -->
+                    <div class="workflow-header">
+                        <div class="header-title">
+                            <h2 style="margin: 0;">工作流管理</h2>
+                        </div>
+                        <div class="filter-toolbar">
+                            <el-form :inline="true" :model="filters" class="filter-form">
+                                <el-form-item label="分类">
+                                    <el-select v-model="filters.category" placeholder="全部分类" clearable style="width: 150px">
+                                        <el-option label="全部分类" value="" />
+                                        <el-option label="默认" value="default" />
+                                        <el-option label="自定义" value="custom" />
+                                    </el-select>
+                                </el-form-item>
+                                <el-form-item label="搜索">
+                                    <el-input v-model="filters.search" placeholder="工作流名称、描述或标签" clearable style="width: 250px" />
+                                </el-form-item>
+                                <el-form-item>
+                                    <el-button type="primary" @click="handleSearch">搜索</el-button>
+                                    <el-button @click="handleReset">重置</el-button>
+                                    <el-button @click="loadWorkflows">刷新</el-button>
+                                </el-form-item>
+                                <el-form-item style="margin-left: auto;">
+                                    <el-button type="primary" @click="handleCreate">新建工作流</el-button>
+                                </el-form-item>
+                            </el-form>
+                        </div>
+                    </div>
+
+                    <!-- 工作流卡片列表 -->
+                    <el-skeleton :loading="loading" animated :count="6">
+                        <template #template>
+                            <div class="workflow-grid">
+                                <div v-for="i in 6" :key="i" class="workflow-card">
+                                    <el-skeleton-item variant="rect" class="workflow-card-header" />
+                                    <div class="workflow-card-body">
+                                        <el-skeleton-item variant="h3" style="width: 60%" />
+                                        <el-skeleton-item variant="text" style="width: 80%" />
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                        <template #default>
+                            <div class="workflow-grid" v-if="workflows.length > 0">
+                                <div
+                                    v-for="workflow in workflows"
+                                    :key="workflow.id"
+                                    class="workflow-card"
+                                >
+                                    <!-- 卡片头部 -->
+                                    <div class="workflow-card-header">
+                                        <div class="workflow-title-section">
+                                            <h3 class="workflow-title" :title="workflow.name">
+                                                {{ workflow.name }}
+                                                <el-tag v-if="workflow.is_default" type="success" size="small" style="margin-left: 8px;">默认</el-tag>
+                                                <el-tag v-if="workflow.is_public" type="info" size="small" style="margin-left: 4px;">公开</el-tag>
+                                            </h3>
+                                            <div class="workflow-meta">
+                                                <span>ID: {{ workflow.id }}</span>
+                                                <span v-if="workflow.category">分类: {{ workflow.category }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="workflow-actions" @click.stop>
+                                            <el-button
+                                                text
+                                                size="small"
+                                                @click="handleViewDetail(workflow)"
+                                            >查看</el-button>
+                                            <el-button
+                                                text
+                                                size="small"
+                                                @click="handleEdit(workflow)"
+                                            >编辑</el-button>
+                                            <el-button
+                                                text
+                                                size="small"
+                                                type="success"
+                                                @click="handleExecute(workflow)"
+                                            >执行</el-button>
+                                            <el-button
+                                                text
+                                                size="small"
+                                                type="danger"
+                                                @click="handleDelete(workflow)"
+                                            >删除</el-button>
+                                        </div>
+                                    </div>
+
+                                    <!-- 卡片主体 -->
+                                    <div class="workflow-card-body">
+                                        <div class="workflow-description" v-if="workflow.description">
+                                            {{ truncateText(workflow.description, 100) }}
+                                        </div>
+                                        <div class="workflow-stats">
+                                            <div class="stat-item">
+                                                <span class="stat-label">使用次数:</span>
+                                                <span class="stat-value">{{ workflow.usage_count || 0 }}</span>
+                                            </div>
+                                            <div class="stat-item">
+                                                <span class="stat-label">节点数:</span>
+                                                <span class="stat-value">{{ getNodeCount(workflow) }}</span>
+                                            </div>
+                                            <div class="stat-item" v-if="workflow.positive_node_id">
+                                                <span class="stat-label">正向节点:</span>
+                                                <span class="stat-value">{{ workflow.positive_node_id }}</span>
+                                            </div>
+                                            <div class="stat-item" v-if="workflow.negative_node_id">
+                                                <span class="stat-label">负向节点:</span>
+                                                <span class="stat-value">{{ workflow.negative_node_id }}</span>
+                                            </div>
+                                        </div>
+                                        <div class="workflow-tags" v-if="workflow.tags">
+                                            <el-tag
+                                                v-for="tag in getTags(workflow.tags)"
+                                                :key="tag"
+                                                size="small"
+                                                style="margin-right: 6px; margin-bottom: 4px;"
+                                            >{{ tag }}</el-tag>
+                                        </div>
+                                        <div class="workflow-footer">
+                                            <span class="workflow-creator">创建者: {{ workflow.created_by || '未知' }}</span>
+                                            <span class="workflow-time">{{ formatDate(workflow.created_at) }}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <el-empty v-else description="暂无工作流" class="empty-state" />
+                        </template>
+                    </el-skeleton>
+
+                    <!-- 分页 -->
+                    <div class="pagination-container">
+                        <el-pagination
+                            background
+                            layout="total, sizes, prev, pager, next, jumper"
+                            :total="pagination.total"
+                            :current-page="pagination.page"
+                            :page-size="pagination.pageSize"
+                            :page-sizes="[12, 24, 48, 96]"
+                            @current-change="handlePageChange"
+                            @size-change="handleSizeChange"
+                        />
+                    </div>
+                </div>
+            </el-main>
+        </el-container>
+
+        <!-- 工作流编辑/创建对话框 -->
+        <el-dialog
+            v-model="formVisible"
+            :title="formMode === 'create' ? '新建工作流' : '编辑工作流'"
+            width="80%"
+            :close-on-click-modal="false"
+        >
+            <el-form :model="workflowForm" label-width="150px" ref="workflowFormRef">
+                <el-form-item label="工作流名称" prop="name" :rules="[{ required: true, message: '请输入工作流名称', trigger: 'blur' }]">
+                    <el-input v-model="workflowForm.name" placeholder="请输入工作流名称" />
+                </el-form-item>
+                <el-form-item label="描述">
+                    <el-input v-model="workflowForm.description" type="textarea" :rows="3" placeholder="请输入描述" />
+                </el-form-item>
+                <el-form-item label="分类">
+                    <el-input v-model="workflowForm.category" placeholder="如：default, custom" />
+                </el-form-item>
+                <el-form-item label="标签">
+                    <el-input v-model="workflowForm.tags" placeholder="逗号分隔，如：tag1, tag2" />
+                </el-form-item>
+                <el-form-item>
+                    <el-checkbox v-model="workflowForm.is_default">设为默认工作流</el-checkbox>
+                    <el-checkbox v-model="workflowForm.is_public" style="margin-left: 20px;">公开</el-checkbox>
+                </el-form-item>
+                <el-form-item label="提示词节点配置">
+                    <el-card shadow="never" style="background: #f5f7fa;">
+                        <el-row :gutter="20">
+                            <el-col :span="12">
+                                <el-form-item label="正向提示词节点ID">
+                                    <el-input v-model="workflowForm.positive_node_id" placeholder="如：6" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="正向提示词字段名">
+                                    <el-input v-model="workflowForm.positive_field_name" placeholder="如：text" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="负向提示词节点ID">
+                                    <el-input v-model="workflowForm.negative_node_id" placeholder="如：7" />
+                                </el-form-item>
+                            </el-col>
+                            <el-col :span="12">
+                                <el-form-item label="负向提示词字段名">
+                                    <el-input v-model="workflowForm.negative_field_name" placeholder="如：text" />
+                                </el-form-item>
+                            </el-col>
+                        </el-row>
+                        <el-button type="info" size="small" @click="handleAutoDetect">自动检测</el-button>
+                    </el-card>
+                </el-form-item>
+                <el-form-item label="工作流JSON" prop="workflow_json" :rules="[{ required: true, message: '请输入工作流JSON', trigger: 'blur' }]">
+                    <div style="margin-bottom: 10px;">
+                        <el-button size="small" @click="handleLoadFromFile">从文件加载</el-button>
+                        <el-button size="small" @click="handleFormatJSON">格式化JSON</el-button>
+                    </div>
+                    <el-input
+                        v-model="workflowForm.workflow_json"
+                        type="textarea"
+                        :rows="20"
+                        placeholder="工作流JSON配置"
+                        style="font-family: monospace;"
+                    />
+                </el-form-item>
+                <el-form-item>
+                    <el-button type="primary" @click="handleSubmit">保存</el-button>
+                    <el-button @click="formVisible = false">取消</el-button>
+                </el-form-item>
+            </el-form>
+        </el-dialog>
+
+        <!-- 工作流详情对话框 -->
+        <el-dialog
+            v-model="detailVisible"
+            title="工作流详情"
+            width="80%"
+            v-if="currentWorkflow"
+        >
+            <el-descriptions :column="2" border>
+                <el-descriptions-item label="ID">{{ currentWorkflow.id }}</el-descriptions-item>
+                <el-descriptions-item label="名称">{{ currentWorkflow.name }}</el-descriptions-item>
+                <el-descriptions-item label="描述" :span="2">
+                    {{ currentWorkflow.description || '-' }}
+                </el-descriptions-item>
+                <el-descriptions-item label="分类">{{ currentWorkflow.category || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="标签">{{ currentWorkflow.tags || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="使用次数">{{ currentWorkflow.usage_count }}</el-descriptions-item>
+                <el-descriptions-item label="默认工作流">
+                    <el-tag :type="currentWorkflow.is_default ? 'success' : 'info'">
+                        {{ currentWorkflow.is_default ? '是' : '否' }}
+                    </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="公开">
+                    <el-tag :type="currentWorkflow.is_public ? 'success' : 'info'">
+                        {{ currentWorkflow.is_public ? '是' : '否' }}
+                    </el-tag>
+                </el-descriptions-item>
+                <el-descriptions-item label="创建者">{{ currentWorkflow.created_by || '-' }}</el-descriptions-item>
+                <el-descriptions-item label="创建时间">
+                    {{ formatDate(currentWorkflow.created_at) }}
+                </el-descriptions-item>
+                <el-descriptions-item label="更新时间">
+                    {{ formatDate(currentWorkflow.updated_at) }}
+                </el-descriptions-item>
+                <el-descriptions-item label="工作流JSON" :span="2">
+                    <div style="max-height: 500px; overflow-y: auto;">
+                        <pre style="background: #f5f7fa; padding: 15px; border-radius: 4px; font-family: 'Courier New', monospace; font-size: 12px; line-height: 1.5; margin: 0;">{{ formatJSON(currentWorkflow.workflow_json) }}</pre>
+                    </div>
+                </el-descriptions-item>
+            </el-descriptions>
+            <div style="margin-top: 20px; text-align: right;">
+                <el-button type="success" @click="handleExecute(currentWorkflow)">执行工作流</el-button>
+                <el-button type="primary" @click="handleEdit(currentWorkflow)">编辑</el-button>
+            </div>
+        </el-dialog>
+    </div>
+
+    <!-- Vue 3 -->
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <!-- Element Plus -->
+    <script src="https://unpkg.com/element-plus"></script>
+    <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+    <script src="/static/js/common.js"></script>
+    <script src="/static/js/workflow-vue.js"></script>
+</body>
+</html>

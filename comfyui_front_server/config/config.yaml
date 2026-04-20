@@ -1,0 +1,26 @@
+server:
+  host: "0.0.0.0"
+  port: 8080
+  ws_path: "/ws/middle"
+
+database:
+  type: "sqlite"
+  path: "./data/front.db"
+
+jwt:
+  secret: "your_jwt_secret_key_change_this_in_production"
+  expire_hours: 720  # 30天（游客用户）
+
+user:
+  default_user_type: "guest"
+  cleanup_inactive_days: 90
+
+middle:
+  secret_key: "your_middle_secret_key_change_this_in_production"
+
+storage:
+  image_base_url: "http://localhost:8081/api/image-file"
+
+log:
+  level: "INFO"  # DEBUG, INFO, WARN, ERROR
+

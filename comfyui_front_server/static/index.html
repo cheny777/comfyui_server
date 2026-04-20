@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ComfyUI 图像生成</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <header class="header">
+            <h1>ComfyUI 图像生成</h1>
+            <div class="user-info">
+                <span id="userNickname">游客</span>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <!-- 历史记录侧边栏 -->
+            <aside class="sidebar">
+                <h2>历史记录</h2>
+                <div id="historyList" class="history-list">
+                    <div class="loading">加载中...</div>
+                </div>
+            </aside>
+
+            <!-- 主内容区 -->
+            <main class="content">
+                <!-- 提示词输入区 -->
+                <section class="prompt-section">
+                    <div class="prompt-input">
+                        <label>选择工作流 *</label>
+                        <select id="workflowSelect" class="workflow-select">
+                            <option value="">加载中...</option>
+                        </select>
+                    </div>
+                    <div class="prompt-input">
+                        <label>
+                            正向提示词 *
+                            <span class="help-icon" title="点击查看提示词格式要求">ℹ️</span>
+                        </label>
+                        <div class="prompt-hint">
+                            <strong>格式要求：</strong>
+                            <ul>
+                                <li>使用英文描述，用逗号分隔关键词</li>
+                                <li>描述要包含：主体、风格、质量、细节等</li>
+                                <li>可以使用权重标记：<code>(keyword:1.2)</code> 增强，<code>[keyword]</code> 减弱</li>
+                                <li>建议长度：50-200个字符</li>
+                            </ul>
+                            <div class="prompt-examples">
+                                <strong>示例：</strong>
+                                <div class="example-item" onclick="fillExample(this)">
+                                    <code>a beautiful landscape, mountains, sunset, golden hour, highly detailed, 4k, masterpiece</code>
+                                </div>
+                                <div class="example-item" onclick="fillExample(this)">
+                                    <code>portrait of a woman, professional photography, soft lighting, (cinematic:1.2), bokeh background</code>
+                                </div>
+                            </div>
+                        </div>
+                        <textarea id="positivePrompt" rows="5" 
+                            placeholder="例如：a beautiful landscape, mountains, sunset, golden hour, highly detailed, 4k, masterpiece&#10;&#10;提示：用英文描述，用逗号分隔关键词，包含主体、风格、质量等要素"></textarea>
+                    </div>
+                    <button id="generateBtn" class="generate-btn">生成图像</button>
+                </section>
+
+                <!-- 进度显示 -->
+                <section id="progressSection" class="progress-section" style="display: none;">
+                    <div class="progress-bar">
+                        <div id="progressBar" class="progress-fill"></div>
+                    </div>
+                    <span id="progressText">准备中...</span>
+                </section>
+
+                <!-- 图像显示区 -->
+                <section class="image-section">
+                    <h3>生成的图像</h3>
+                    <div id="imageGrid" class="image-grid">
+                        <div class="empty-state">暂无图像，开始生成吧！</div>
+                    </div>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <!-- 历史记录详情模态框 -->
+    <div id="historyModal" class="modal" style="display: none;">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>任务详情</h2>
+            <div id="historyDetail"></div>
+        </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+    <script>
+        // 填充示例提示词
+        function fillExample(element) {
+            const text = element.querySelector('code').textContent;
+            const textarea = document.getElementById('positivePrompt');
+            if (textarea) {
+                textarea.value = text;
+                textarea.focus();
+                // 触发输入事件，以便工作流可以检测到变化
+                textarea.dispatchEvent(new Event('input', { bubbles: true }));
+            }
+        }
+
+        // 提示词格式帮助
+        document.addEventListener('DOMContentLoaded', function() {
+            const helpIcon = document.querySelector('.help-icon');
+            const promptHint = document.querySelector('.prompt-hint');
+            
+            if (helpIcon && promptHint) {
+                let isVisible = false;
+                
+                helpIcon.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    isVisible = !isVisible;
+                    promptHint.style.display = isVisible ? 'block' : 'none';
+                });
+                
+                // 默认隐藏提示
+                promptHint.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
+
